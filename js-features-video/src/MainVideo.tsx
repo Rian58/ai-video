@@ -69,9 +69,13 @@ export const MyComponent: React.FC<Partial<VideoConfig>> = (props) => {
                   <Layout title={scene.title}>
                     <CodeBlock code={scene.code || ''} />
                     {scene.diagram && <Diagram type={scene.diagram} />}
-                    {scene.script && (
+                    {/* 
+                      Note: SceneData only has base properties. 
+                      We cast to any or check 'text' dynamically since it comes from SceneConfig
+                    */}
+                    {(scene as any).text && (
                       <div className="absolute bottom-12 left-12 right-12 text-center text-4xl leading-relaxed text-[var(--color-text-normal)] bg-[var(--color-bg-panel)]/80 p-6 rounded-2xl border-2 border-[var(--color-accent-cyan)] shadow-[0_0_15px_rgba(100,210,255,0.2)]">
-                        {scene.script}
+                        {(scene as any).text}
                       </div>
                     )}
                   </Layout>

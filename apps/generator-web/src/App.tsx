@@ -58,7 +58,7 @@ function App() {
         id: `scene-${Date.now()}-${i}`,
         title: `Scene ${i + 1}`,
         type,
-        narration: narration || block, // fallback if empty after code extraction
+        text: narration || block, // fallback if empty after code extraction
         code,
         weight: Math.max(1, narration.length),
       }

@@ -4,7 +4,7 @@ export interface SceneConfig {
   id: string
   title: string
   type: SceneType
-  narration: string
+  text: string
   code?: string
   weight: number
 }
