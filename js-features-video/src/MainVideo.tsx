@@ -29,7 +29,7 @@ export const MyComponent: React.FC<Partial<VideoConfig>> = (props) => {
   return (
     <AbsoluteFill className="bg-[var(--color-bg-main)] text-[var(--color-text-normal)]">
       {props.narrationMode !== 'none' && (
-        <Audio src={props.audioSrc || staticFile('narasi.mp3')} />
+        <Audio src={staticFile(props.audioSrc || 'narasi.mp3')} />
       )}
 
       <Series>
@@ -69,6 +69,11 @@ export const MyComponent: React.FC<Partial<VideoConfig>> = (props) => {
                   <Layout title={scene.title}>
                     <CodeBlock code={scene.code || ''} />
                     {scene.diagram && <Diagram type={scene.diagram} />}
+                    {scene.script && (
+                      <div className="absolute bottom-12 left-12 right-12 text-center text-4xl leading-relaxed text-[var(--color-text-normal)] bg-[var(--color-bg-panel)]/80 p-6 rounded-2xl border-2 border-[var(--color-accent-cyan)] shadow-[0_0_15px_rgba(100,210,255,0.2)]">
+                        {scene.script}
+                      </div>
+                    )}
                   </Layout>
                 )}
               </SceneTransition>
