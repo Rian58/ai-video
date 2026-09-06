@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg-main: #0d1117;
+  --color-bg-panel: #161b22;
+  --color-accent-cyan: #58a6ff;
+  --color-accent-green: #3fb950;
+  --color-accent-yellow: #d29922;
+  --color-accent-red: #f85149;
+  --color-text-normal: #c9d1d9;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg-main);
+  color: var(--color-text-normal);
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+}
