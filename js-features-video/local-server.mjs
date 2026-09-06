@@ -5,8 +5,26 @@ import path from 'path'
 
 const app = express()
 
-// Izinkan CORS dari Vercel atau localhost manapun
-app.use(cors())
+// Batasi CORS HANYA dari URL Vercel dan Localhost (Best Practice Keamanan)
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://ai-video-dashboard.vercel.app',
+]
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.vercel.app')
+      ) {
+        callback(null, true)
+      } else {
+        callback(new Error('Not allowed by CORS'))
+      }
+    },
+  }),
+)
 
 // Izinkan payload besar (sampai 50MB) karena bisa berisi audio base64
 app.use(express.json({ limit: '50mb' }))
@@ -24,13 +42,15 @@ app.post('/sync', (req, res) => {
   }
 
   // 1. Simpan audio jika ada payload base64
-  if (audio && audio.base64) {
-    const audioFileName = audio.fileName || 'narasi.mp3'
+  if (audio && audio.base64 && typeof audio.base64 === 'string') {
+    // Sanitasi nama file (mencegah Path Traversal Vulnerability)
+    const rawFileName = audio.fileName || 'narasi.mp3'
+    const audioFileName = path.basename(rawFileName)
     const audioPath = path.join(publicDir, audioFileName)
-    
+
     // Tulis ke public folder
     fs.writeFileSync(audioPath, Buffer.from(audio.base64, 'base64'))
-    
+
     // Pastikan config menggunakan nama file tersebut (bisa dibaca staticFile() di Remotion)
     config.audioSrc = audioFileName
   } else if (config.narrationMode === 'upload' && config.audioFileName) {
@@ -45,11 +65,16 @@ app.post('/sync', (req, res) => {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 
   console.log(`[SYNC] Berhasil mensinkronisasi data ke ${configPath}`)
-  res.json({ success: true, message: 'Data dan audio berhasil disinkronkan ke localhost.' })
+  res.json({
+    success: true,
+    message: 'Data dan audio berhasil disinkronkan ke localhost.',
+  })
 })
 
 const PORT = 4000
 app.listen(PORT, () => {
   console.log(`🚀 Local Sync Server berjalan di http://localhost:${PORT}`)
-  console.log('Server ini siap menerima VideoConfig dan Audio dari Vercel Anda.')
+  console.log(
+    'Server ini siap menerima VideoConfig dan Audio dari Vercel Anda.',
+  )
 })

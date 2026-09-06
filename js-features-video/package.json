@@ -38,7 +38,5 @@
     "lint": "biome lint .",
     "check": "biome check --write ."
   },
-  "sideEffects": [
-    "*.css"
-  ]
+  "sideEffects": ["*.css"]
 }
