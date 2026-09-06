@@ -1,0 +1,8 @@
+{
+  "name": "ai-video-studio",
+  "private": true,
+  "workspaces": [
+    "js-features-video",
+    "apps/*"
+  ]
+}
