@@ -18,6 +18,8 @@ function App() {
     aspectRatio: '16:9',
   })
   const [audioUrl, setAudioUrl] = useState<string>('')
+  const [audioFile, setAudioFile] = useState<File | null>(null)
+  const [isSending, setIsSending] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleNext = () => setStep((s) => Math.min(s + 1, 3) as 1 | 2 | 3)
@@ -71,6 +73,7 @@ function App() {
 
     const url = URL.createObjectURL(file)
     setAudioUrl(url)
+    setAudioFile(file)
 
     const audio = new Audio(url)
     audio.onloadedmetadata = () => {
@@ -99,6 +102,49 @@ function App() {
     a.download = 'video-config.json'
     a.click()
     URL.revokeObjectURL(url)
+  }
+
+  const sendToLocalhost = async () => {
+    setIsSending(true)
+    const exportData = { ...config }
+    let audioData = null
+
+    if (exportData.narrationMode === 'upload' && audioFile) {
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader()
+        reader.onload = () => {
+          const result = reader.result as string
+          resolve(result.split(',')[1])
+        }
+        reader.readAsDataURL(audioFile)
+      })
+      audioData = {
+        fileName: audioFile.name,
+        base64,
+      }
+    }
+
+    exportData.audioSrc = ''
+
+    try {
+      const res = await fetch('http://localhost:4000/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ config: exportData, audio: audioData }),
+      })
+      const resData = await res.json()
+      if (res.ok) {
+        alert(resData.message)
+      } else {
+        alert(`Gagal sinkronisasi: ${resData.error}`)
+      }
+    } catch (_err) {
+      alert(
+        'Koneksi ke http://localhost:4000 gagal. Pastikan "node local-server.mjs" sedang berjalan di laptop Anda!',
+      )
+    } finally {
+      setIsSending(false)
+    }
   }
 
   const isRenderDisabled = () => {
@@ -383,29 +429,38 @@ function App() {
                 />
               </div>
 
-              <div style={{ marginTop: '2rem' }}>
+              <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
                 <button
                   type="button"
                   className="btn btn-primary"
-                  style={{ width: '100%', padding: '1rem', fontSize: '1rem' }}
+                  style={{ flex: 1, padding: '1rem', fontSize: '1rem' }}
+                  disabled={isRenderDisabled() || isSending}
+                  onClick={sendToLocalhost}
+                >
+                  {isSending ? 'Mengirim...' : 'Kirim ke Localhost'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ padding: '1rem', fontSize: '1rem' }}
                   disabled={isRenderDisabled()}
                   onClick={exportJson}
                 >
-                  Download Video Config JSON
+                  Download JSON
                 </button>
-                {isRenderDisabled() && (
-                  <div
-                    style={{
-                      textAlign: 'center',
-                      marginTop: '0.5rem',
-                      color: 'var(--accent-red)',
-                      fontSize: '0.75rem',
-                    }}
-                  >
-                    Mohon lengkapi Naskah, Pembagian Scene, dan Upload Audio (jika dipilih)
-                  </div>
-                )}
               </div>
+              {isRenderDisabled() && (
+                <div
+                  style={{
+                    textAlign: 'center',
+                    marginTop: '0.5rem',
+                    color: 'var(--accent-red)',
+                    fontSize: '0.75rem',
+                  }}
+                >
+                  Mohon lengkapi Naskah, Pembagian Scene, dan Upload Audio (jika dipilih)
+                </div>
+              )}
             </div>
           )}
         </div>
