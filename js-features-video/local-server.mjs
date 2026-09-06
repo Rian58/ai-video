@@ -9,6 +9,8 @@ const app = express()
 const allowedOrigins = [
   'http://localhost:5173',
   'https://ai-video-dashboard.vercel.app',
+  'https://ai-video-dashboard-pi.vercel.app',
+  'https://video.henss.my.id'
 ]
 app.use(
   cors({
