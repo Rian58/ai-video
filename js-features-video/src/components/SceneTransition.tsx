@@ -41,7 +41,12 @@ export const SceneTransition: React.FC<SceneTransitionProps> = ({
     interpolate(entrance, [0, 1], [50, 0]) - interpolate(exit, [0, 1], [0, -50])
 
   return (
-    <AbsoluteFill style={{ opacity, transform: `translateY(${translateY}px)` }}>
+    <AbsoluteFill
+      style={{
+        opacity,
+        transform: `translateY(${translateY}px)`,
+      }}
+    >
       {children}
     </AbsoluteFill>
   )

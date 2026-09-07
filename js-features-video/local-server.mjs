@@ -73,6 +73,27 @@ app.post('/sync', (req, res) => {
   })
 })
 
+app.delete('/sync', (req, res) => {
+  const publicDir = path.join(process.cwd(), 'public')
+  const configPath = path.join(publicDir, 'video-config.json')
+  
+  try {
+    if (fs.existsSync(configPath)) {
+      // Baca config untuk tahu file audionya agar bisa dihapus juga
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
+      if (config.audioSrc && config.audioSrc !== 'narasi.mp3') {
+         const audioPath = path.join(publicDir, config.audioSrc)
+         if (fs.existsSync(audioPath)) fs.unlinkSync(audioPath)
+      }
+      fs.unlinkSync(configPath)
+    }
+    console.log(`[SYNC] Berhasil menghapus konfigurasi kustom`)
+    res.json({ success: true, message: 'Config dihapus, kembali ke default.' })
+  } catch (err) {
+    res.status(500).json({ error: 'Gagal menghapus config' })
+  }
+})
+
 const PORT = 4000
 app.listen(PORT, () => {
   console.log(`🚀 Local Sync Server berjalan di http://localhost:${PORT}`)

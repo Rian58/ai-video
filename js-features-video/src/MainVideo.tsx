@@ -67,15 +67,22 @@ export const MyComponent: React.FC<Partial<VideoConfig>> = (props) => {
                   </AbsoluteFill>
                 ) : (
                   <Layout title={scene.title}>
-                    <CodeBlock code={scene.code || ''} />
+                    {scene.code && <CodeBlock code={scene.code} />}
                     {scene.diagram && <Diagram type={scene.diagram} />}
-                    {/* 
-                      Note: SceneData only has base properties. 
-                      We cast to any or check 'text' dynamically since it comes from SceneConfig
-                    */}
-                    {(scene as any).text && (
+                    
+                    {/* If there is no code and no diagram, show the text in the center */}
+                    {!scene.code && !scene.diagram && (
+                      <div className="flex-1 flex items-center justify-center p-12">
+                        <p className="text-6xl text-center leading-relaxed text-[var(--color-accent-cyan)] font-semibold">
+                          {(scene as any).narration || (scene as any).text}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Otherwise, show as a subtitle panel at the bottom */}
+                    {(scene.code || scene.diagram) && ((scene as any).narration || (scene as any).text) && (
                       <div className="absolute bottom-12 left-12 right-12 text-center text-4xl leading-relaxed text-[var(--color-text-normal)] bg-[var(--color-bg-panel)]/80 p-6 rounded-2xl border-2 border-[var(--color-accent-cyan)] shadow-[0_0_15px_rgba(100,210,255,0.2)]">
-                        {(scene as any).text}
+                        {(scene as any).narration || (scene as any).text}
                       </div>
                     )}
                   </Layout>

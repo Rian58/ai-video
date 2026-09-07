@@ -51,12 +51,19 @@ function App() {
         narration = block.replace(/```[\s\S]*?```/g, '').trim()
       }
 
+      // Extract heading as title
+      let title = `Scene ${i + 1}`
+      const titleMatch = narration.match(/^#+\s+(.*)/m)
+      if (titleMatch) {
+        title = titleMatch[1].trim()
+      }
+
       // Remove headings for narration
       narration = narration.replace(/^#+\s+/gm, '')
 
       return {
         id: `scene-${Date.now()}-${i}`,
-        title: `Scene ${i + 1}`,
+        title,
         type,
         text: narration || block, // fallback if empty after code extraction
         code,
@@ -144,6 +151,24 @@ function App() {
       )
     } finally {
       setIsSending(false)
+    }
+  }
+
+  const deleteFromLocalhost = async () => {
+    try {
+      const res = await fetch('http://localhost:4000/sync', {
+        method: 'DELETE',
+      })
+      const resData = await res.json()
+      if (res.ok) {
+        alert(resData.message)
+      } else {
+        alert(`Gagal menghapus config: ${resData.error}`)
+      }
+    } catch (_err) {
+      alert(
+        'Koneksi ke http://localhost:4000 gagal. Pastikan "node local-server.mjs" sedang berjalan di laptop Anda!',
+      )
     }
   }
 
@@ -438,6 +463,14 @@ function App() {
                   onClick={sendToLocalhost}
                 >
                   {isSending ? 'Mengirim...' : 'Kirim ke Localhost'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ padding: '1rem', fontSize: '1rem', backgroundColor: 'var(--accent-red)' }}
+                  onClick={deleteFromLocalhost}
+                >
+                  Reset Local
                 </button>
                 <button
                   type="button"
